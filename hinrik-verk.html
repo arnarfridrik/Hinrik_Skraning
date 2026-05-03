@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hinrik">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Hinrik – Vasapeningur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Baloo+2:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0e17;
+      --card: #1a1930;
+      --accent1: #f9c74f;
+      --accent2: #f3722c;
+      --accent3: #90be6d;
+      --accent4: #4cc9f0;
+      --accent5: #9b5de5;
+      --text: #fffffe;
+      --muted: #a7a9be;
+      --danger: #ef233c;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Starfield bg */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 25%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 20%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 70%, rgba(255,255,255,0.2) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 85%, rgba(255,255,255,0.2) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 0 0 120px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      padding: 36px 24px 20px;
+      text-align: center;
+    }
+    .header-emoji {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 6px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .header h1 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--accent1);
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Total */
+    .total-box {
+      margin: 0 16px 24px;
+      background: linear-gradient(135deg, #f9c74f22, #f3722c22);
+      border: 2px solid #f9c74f44;
+      border-radius: var(--radius);
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .total-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .total-amount {
+      font-family: 'Baloo 2', cursive;
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--accent1);
+      line-height: 1;
+    }
+    .total-amount span {
+      font-size: 18px;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+
+    /* Section label */
+    .section-label {
+      padding: 0 24px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    /* Chore cards */
+    .chores-list {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chore-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 1.5px solid transparent;
+      transition: transform 0.12s ease, border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .chore-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .chore-card.c0::before { background: #4cc9f0; }
+    .chore-card.c1::before { background: #f9c74f; }
+    .chore-card.c2::before { background: #90be6d; }
+    .chore-card.c3::before { background: #f3722c; }
+    .chore-card.c4::before { background: #9b5de5; }
+
+    .chore-icon {
+      font-size: 32px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      flex-shrink: 0;
+    }
+    .chore-card.c0 .chore-icon { background: #4cc9f018; }
+    .chore-card.c1 .chore-icon { background: #f9c74f18; }
+    .chore-card.c2 .chore-icon { background: #90be6d18; }
+    .chore-card.c3 .chore-icon { background: #f3722c18; }
+    .chore-card.c4 .chore-icon { background: #9b5de518; }
+
+    .chore-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .chore-name {
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chore-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .chore-count {
+      font-family: 'Baloo 2', cursive;
+      font-size: 28px;
+      font-weight: 800;
+      min-width: 40px;
+      text-align: center;
+      line-height: 1;
+    }
+    .chore-card.c0 .chore-count { color: #4cc9f0; }
+    .chore-card.c1 .chore-count { color: #f9c74f; }
+    .chore-card.c2 .chore-count { color: #90be6d; }
+    .chore-card.c3 .chore-count { color: #f3722c; }
+    .chore-card.c4 .chore-count { color: #9b5de5; }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .btn-tap {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      transition: transform 0.1s, opacity 0.1s;
+      flex-shrink: 0;
+    }
+    .btn-tap:active { transform: scale(0.88); }
+
+    .btn-plus {
+      background: var(--accent1);
+      color: #0f0e17;
+    }
+    .btn-minus {
+      background: #2a2940;
+      color: var(--muted);
+      font-size: 22px;
+    }
+    .btn-minus:active { background: #3a3860; }
+
+    /* Bump animation */
+    @keyframes bump {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+    .bumping { animation: bump 0.25s ease; }
+
+    /* Reset section */
+    .reset-section {
+      margin: 32px 16px 0;
+      text-align: center;
+    }
+    .btn-reset {
+      background: transparent;
+      border: 2px solid #ef233c44;
+      color: var(--danger);
+      border-radius: 16px;
+      padding: 14px 32px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      width: 100%;
+      max-width: 280px;
+    }
+    .btn-reset:hover { background: #ef233c18; border-color: var(--danger); }
+    .btn-reset:active { transform: scale(0.97); }
+
+    /* Sync indicator */
+    .sync-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 6px 16px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .sync-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent3);
+      transition: background 0.3s;
+    }
+    .sync-dot.syncing {
+      background: var(--accent1);
+      animation: pulse 0.6s ease infinite;
+    }
+    .sync-dot.error { background: var(--danger); }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .sync-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1930;
+      border: 1.5px solid #f9c74f33;
+      color: var(--text);
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 200;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Confirm modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-box {
+      background: #1a1930;
+      border-radius: 28px 28px 0 0;
+      padding: 32px 24px 40px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+    .modal-box h3 {
+      font-family: 'Baloo 2', cursive;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .modal-box p { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+    .modal-btns { display: flex; gap: 12px; }
+    .modal-btn {
+      flex: 1;
+      padding: 16px;
+      border-radius: 16px;
+      border: none;
+      font-family: 'Nunito', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .modal-btn:active { transform: scale(0.96); }
+    .modal-btn.cancel { background: #2a2940; color: var(--text); }
+    .modal-btn.confirm { background: var(--danger); color: white; }
+
+    /* Last updated */
+    .last-updated {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.5;
+      padding: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sync-bar">
+  <div class="sync-dot" id="syncDot"></div>
+  <span class="sync-text" id="syncText">Samstillt</span>
+</div>
+
+<div class="wrapper">
+  <div class="header">
+    <span class="header-emoji">⭐</span>
+    <h1>Hinrik</h1>
+    <p>Heimilisverk &amp; Vasapeningur</p>
+  </div>
+
+  <div class="total-box">
+    <div>
+    <div class="total-label">Heildarkrónur</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;" id="totalOps">0 verk kláruð</div>
+    </div>
+    <div class="total-amount" id="totalCount">0 <span>stig</span></div>
+  </div>
+
+  <div class="section-label">Smelltu þegar Hinrik gerir verk 👇</div>
+
+  <div class="chores-list" id="choresList"></div>
+
+  <div class="reset-section">
+    <button class="btn-reset" onclick="openReset()">🗑 Núlla allt</button>
+  </div>
+
+  <div class="last-updated" id="lastUpdated"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <h3>Núlla allt? 🤔</h3>
+    <p>Þetta eyðir öllum stigum hjá Hinrik. Ertu viss?</p>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeReset()">Hætta við</button>
+      <button class="modal-btn confirm" onclick="confirmReset()">Já, núlla!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'hinrik-verk-v2';
+
+  const CHORES = [
+    { id: 'elvis',   name: 'Fara út með Elvis',           icon: '🐕', reward: 100, meta: '100 kr' },
+    { id: 'herberg', name: 'Taka til í herberginu',        icon: '🧹', reward: 50,  meta: '50 kr' },
+    { id: 'rusl',    name: 'Fara út með ruslið',           icon: '🗑️', reward: 50,  meta: '50 kr' },
+    { id: 'klósett', name: 'Duglegur á klósettið',         icon: '🚽', reward: 50,  meta: '50 kr' },
+    { id: 'uppþvott','name': 'Uppþvottavél',               icon: '🍽️', reward: 50,  meta: '50 kr' },
+  ];
+
+  let state = {};
+  let db = null;
+
+  // --- IndexedDB ---
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('HinrikApp', 1);
+      req.onupgradeneeded = e => {
+        e.target.result.createObjectStore('data');
+      };
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = () => reject();
+    });
+  }
+
+  async function loadState() {
+    try {
+      db = await openDB();
+      const tx = db.transaction('data', 'readonly');
+      const req = tx.objectStore('data').get(STORAGE_KEY);
+      req.onsuccess = () => {
+        state = req.result || buildDefault();
+        render();
+      };
+      req.onerror = () => { state = buildDefault(); render(); };
+    } catch {
+      state = buildDefault();
+      render();
+    }
+  }
+
+  async function saveState() {
+    try {
+      if (!db) db = await openDB();
+      const tx = db.transaction('data', 'readwrite');
+      tx.objectStore('data').put(state, STORAGE_KEY);
+      setSyncing(true);
+    } catch {
+      setSyncError();
+    }
+  }
+
+  function buildDefault() {
+    const s = { counts: {}, updatedAt: null };
+    CHORES.forEach(c => { s.counts[c.id] = 0; });
+    return s;
+  }
+
+  // --- Sync UI ---
+  function setSyncing(saved) {
+    const dot = document.getElementById('syncDot');
+    const txt = document.getElementById('syncText');
+    dot.className = 'sync-dot';
+    txt.textContent = 'Vistað';
+    setTimeout(() => { txt.textContent = ''; }, 1500);
+  }
+  function setSyncError() {
+    const dot = document.getElementById('syncDot');
+    const txt = document.getElementById('syncText');
+    dot.className = 'sync-dot error';
+    txt.textContent = 'Villa';
+  }
+
+  // --- Render ---
+  function render() {
+    const list = document.getElementById('choresList');
+    list.innerHTML = '';
+    let total = 0;
+    let totalOps = 0;
+
+    CHORES.forEach((chore, i) => {
+      const count = state.counts[chore.id] || 0;
+      total += count * chore.reward;
+      totalOps += count;
+
+      const card = document.createElement('div');
+      card.className = `chore-card c${i}`;
+      card.id = `card-${chore.id}`;
+      card.innerHTML = `
+        <div class="chore-icon">${chore.icon}</div>
+        <div class="chore-info">
+          <div class="chore-name">${chore.name}</div>
+          <div class="chore-meta">${chore.reward} kr í hvert skipti</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-tap btn-minus" onclick="decrement('${chore.id}')">–</button>
+          <div class="chore-count" id="count-${chore.id}">${count}</div>
+          <button class="btn-tap btn-plus" onclick="increment('${chore.id}')">+</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+
+    document.getElementById('totalCount').innerHTML = `${total} <span>kr</span>`;
+    document.getElementById('totalOps').textContent = `${totalOps} verk kláruð`;
+
+    if (state.updatedAt) {
+      const d = new Date(state.updatedAt);
+      document.getElementById('lastUpdated').textContent =
+        `Síðast uppfært: ${d.toLocaleDateString('is-IS')} kl. ${d.toLocaleTimeString('is-IS', {hour:'2-digit',minute:'2-digit'})}`;
+    }
+  }
+
+  // --- Actions ---
+  function increment(id) {
+    state.counts[id] = (state.counts[id] || 0) + 1;
+    state.updatedAt = new Date().toISOString();
+    render();
+    saveState();
+    bumpCard(id);
+    const chore = CHORES.find(c => c.id === id);
+    showToast(`${chore.icon} +${chore.reward} kr!`);
+  }
+
+  function decrement(id) {
+    if ((state.counts[id] || 0) <= 0) return;
+    state.counts[id]--;
+    state.updatedAt = new Date().toISOString();
+    render();
+    saveState();
+  }
+
+  function bumpCard(id) {
+    const card = document.getElementById(`card-${id}`);
+    if (!card) return;
+    card.classList.remove('bumping');
+    void card.offsetWidth;
+    card.classList.add('bumping');
+    setTimeout(() => card.classList.remove('bumping'), 300);
+  }
+
+  // --- Toast ---
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // --- Reset modal ---
+  function openReset() {
+    document.getElementById('modal').classList.add('open');
+  }
+  function closeReset() {
+    document.getElementById('modal').classList.remove('open');
+  }
+  function confirmReset() {
+    state = buildDefault();
+    state.updatedAt = new Date().toISOString();
+    render();
+    saveState();
+    closeReset();
+    showToast('🗑 Allt núllað!');
+  }
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeReset();
+  });
+
+  // --- Init ---
+  loadState();
+</script>
+</body>
+</html>
